@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARCHÉ™ GOLD PROTOCOL v1.5</title>
+<style>
+:root{
+  --gold:#ffd66b;
+  --deep:#07050d;
+  --violet:#281545;
+  --cyan:#56f6ff;
+}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--deep);font-family:Arial,Helvetica,sans-serif;color:#fff}
+#stage{position:fixed;inset:0}
+canvas{display:block}
+.ui{position:fixed;inset:0;pointer-events:none;padding:clamp(18px,4vw,52px);display:flex;flex-direction:column;justify-content:space-between}
+.header{display:flex;justify-content:space-between;align-items:flex-start;gap:25px}
+.brand{letter-spacing:.18em;color:var(--gold);font-size:clamp(11px,1.2vw,16px);font-weight:bold;text-shadow:0 0 15px #ffb300}
+h1{margin:10px 0 0;font-size:clamp(28px,5vw,74px);line-height:.92;letter-spacing:-.06em;max-width:700px;text-transform:uppercase;background:linear-gradient(120deg,#fff2b0,#ffc529 42%,#fff9d1 70%,#b86b08);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 5px 20px #9e560866)}
+.subtitle{margin-top:16px;color:#d9c9ef;letter-spacing:.12em;font-size:clamp(10px,1.2vw,14px)}
+.status{pointer-events:auto;min-width:220px;padding:18px 20px;border:1px solid #ffd45b77;background:#110b1dcc;backdrop-filter:blur(12px);box-shadow:0 0 35px #e0a72322;border-radius:4px}
+.status-title{color:var(--gold);font-size:11px;letter-spacing:.18em;margin-bottom:13px}
+.status-row{display:flex;justify-content:space-between;gap:22px;color:#bcaed2;font-size:11px;padding:5px 0;border-bottom:1px solid #ffffff13}
+.status-row b{color:#d7ffde;font-weight:normal}
+.footer{display:flex;justify-content:space-between;align-items:end;gap:25px}
+.equation{font-family:Georgia,serif;font-style:italic;font-size:clamp(16px,2vw,26px);color:#ffeab1;text-shadow:0 0 16px #ffb30099}
+.equation small{display:block;font-family:Arial,sans-serif;font-style:normal;font-size:9px;letter-spacing:.25em;color:#9e8eb8;margin-bottom:8px}
+.controls{pointer-events:auto;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+button{cursor:pointer;border:1px solid #ffd66b88;background:#1c112ccc;color:#ffe6a3;padding:11px 15px;font-size:10px;letter-spacing:.13em;text-transform:uppercase;transition:.25s;border-radius:2px}
+button:hover,button.active{background:#ffd66b;color:#1a0d09;box-shadow:0 0 22px #ffc21c99}
+.corner{position:fixed;right:20px;bottom:20px;color:#ffffff55;font-size:9px;letter-spacing:.2em}
+@media(max-width:650px){
+ .header{display:block}.status{margin-top:22px;width:max-content;max-width:100%}
+ .footer{display:block}.controls{justify-content:flex-start;margin-top:15px}
+ .equation{font-size:15px}.corner{display:none}
+}
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<div class="ui">
+  <div class="header">
+    <div>
+      <div class="brand">KETTE12 // ARCHÉ™ GOLD PROTOCOL v1.5 EXPANDED</div>
+      <h1>Die Waffel-<br>Dimension</h1>
+      <div class="subtitle">MONOLITHISCHE PERFEKTION · AHORN-KERN: MAXIMAL STABIL</div>
+    </div>
+    <div class="status">
+      <div class="status-title">SYSTEMSTATUS // GIR TURBO CORE</div>
+      <div class="status-row"><span>TOASTER</span><b>SEELIGER STANDBY</b></div>
+      <div class="status-row"><span>WAFFELVERSORGUNG</span><b>∞ GESICHERT</b></div>
+      <div class="status-row"><span>GOLD-INTEGRITÄT</span><b>100.000%</b></div>
+      <div class="status-row"><span>FRIEDENSLEVEL</span><b id="peace">99.9%</b></div>
+    </div>
+  </div>
+  <div class="footer">
+    <div class="equation"><small>UNIVERSAL CONSTANT // ETERNAL PEACE ENGINE</small>Waffle + Batter + Heat = Eternal Peace</div>
+    <div class="controls">
+      <button id="turbo">⚡ Turbo-Waffel</button>
+      <button id="syrup">Ahorn-Kern</button>
+      <button id="orbit" class="active">Auto-Orbit</button>
+    </div>
+  </div>
+</div>
+<div class="corner">FÜR DIE WAFFEL-DIMENSION! ✦</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script>
+const scene=new THREE.Scene();
+scene.fog=new THREE.FogExp2(0x090512,.018);
+const camera=new THREE.PerspectiveCamera(42,innerWidth/innerHeight,.1,1000);
+camera.position.set(7,5.2,9);
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+renderer.setSize(innerWidth,innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.outputEncoding=THREE.sRGBEncoding;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.25;
+document.getElementById('stage').appendChild(renderer.domElement);
+
+const controls=new THREE.OrbitControls(camera,renderer.domElement);
+controls.enableDamping=true; controls.dampingFactor=.055; controls.minDistance=5; controls.maxDistance=17;
+controls.target.set(0,.5,0); controls.autoRotate=true; controls.autoRotateSpeed=.65;
+
+const gold=new THREE.MeshPhysicalMaterial({color:0xe8a91d,metalness:.8,roughness:.22,clearcoat:.8,clearcoatRoughness:.15});
+const brightGold=new THREE.MeshPhysicalMaterial({color:0xffcf45,metalness:.7,roughness:.18,emissive:0x4a2100,emissiveIntensity:.16});
+const darkGold=new THREE.MeshStandardMaterial({color:0x7d3e0b,metalness:.5,roughness:.38});
+const violet=new THREE.MeshStandardMaterial({color:0x251039,metalness:.5,roughness:.27});
+const cyan=new THREE.MeshStandardMaterial({color:0x25e7ee,emissive:0x0b9ca9,emissiveIntensity:2,metalness:.4,roughness:.2});
+const root=new THREE.Group(); scene.add(root);
+
+scene.add(new THREE.HemisphereLight(0xefd8ff,0x12091d,1.5));
+const key=new THREE.DirectionalLight(0xffd47a,4);
+key.position.set(5,9,4);key.castShadow=true;key.shadow.mapSize.set(2048,2048);scene.add(key);
+const rim=new THREE.PointLight(0x55eaff,8,14);rim.position.set(-4,2,3);scene.add(rim);
+const magenta=new THREE.PointLight(0xa027ff,7,12);magenta.position.set(4,1,-4);scene.add(magenta);
+
+const base=new THREE.Mesh(new THREE.CylinderGeometry(3.65,3.35,.5,96),violet);
+base.position.y=-.15;base.receiveShadow=true;root.add(base);
+const plate=new THREE.Mesh(new THREE.TorusGeometry(3.35,.22,20,96),gold);
+plate.rotation.x=Math.PI/2;plate.position.y=.14;plate.castShadow=true;root.add(plate);
+const innerRing=new THREE.Mesh(new THREE.TorusGeometry(2.92,.035,10,96),cyan);
+innerRing.rotation.x=Math.PI/2;innerRing.position.y=.18;root.add(innerRing);
+
+const waffle=new THREE.Group();root.add(waffle);
+const slab=new THREE.Mesh(new THREE.BoxGeometry(4.9,.48,4.9),brightGold);
+slab.position.y=.55;slab.castShadow=true;slab.receiveShadow=true;waffle.add(slab);
+for(let x=-2.05;x<=2.05;x+=.82){
+ for(let z=-2.05;z<=2.05;z+=.82){
+  const cell=new THREE.Mesh(new THREE.BoxGeometry(.61,.13,.61),gold);
+  cell.position.set(x,.84,z);cell.castShadow=true;waffle.add(cell);
+ }
+}
+for(let i=-2;i<=2;i++){
+ const a=new THREE.Mesh(new THREE.BoxGeometry(.08,.07,4.5),darkGold);
+ a.position.set(i*.82,.91,0);waffle.add(a);
+ const b=a.clone();b.rotation.y=Math.PI/2;b.position.set(0,.92,i*.82);waffle.add(b);
+}
+const syrupMat=new THREE.MeshPhysicalMaterial({color:0x8a3908,roughness:.15,metalness:.1,emissive:0x2b0d00,emissiveIntensity:.3});
+const syrup=new THREE.Group();waffle.add(syrup);
+for(let i=0;i<11;i++){
+ const drop=new THREE.Mesh(new THREE.SphereGeometry(.13,14,10),syrupMat);
+ drop.scale.y=1.8;drop.position.set(-1.9+i*.38,.98,Math.sin(i*1.7)*.65);syrup.add(drop);
+}
+const core=new THREE.Mesh(new THREE.IcosahedronGeometry(.42,2),new THREE.MeshPhysicalMaterial({color:0xffe49a,emissive:0xff9200,emissiveIntensity:3,metalness:.2,roughness:.1}));
+core.position.y=1.25;root.add(core);
+const coreLight=new THREE.PointLight(0xffae25,4,5);coreLight.position.copy(core.position);root.add(coreLight);
+
+const rings=[];
+for(let i=0;i<4;i++){
+ const r=new THREE.Mesh(new THREE.TorusGeometry(1.7+i*.42,.018,8,80),new THREE.MeshBasicMaterial({color:i%2?0xffc83d:0x5ffaff,transparent:true,opacity:.7}));
+ r.rotation.x=Math.PI/2;r.position.y=.35+i*.18;root.add(r);rings.push(r);
+}
+const stars=new THREE.Group();scene.add(stars);
+const starGeo=new THREE.BufferGeometry(), count=650, pos=[];
+for(let i=0;i<count;i++){
+ const radius=10+Math.random()*18, a=Math.random()*Math.PI*2, y=(Math.random()-.5)*18;
+ pos.push(Math.cos(a)*radius,y,Math.sin(a)*radius);
+}
+starGeo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+const starMat=new THREE.PointsMaterial({color:0xffd87d,size:.035,transparent:true,opacity:.8});
+stars.add(new THREE.Points(starGeo,starMat));
+
+const particles=[], particleGroup=new THREE.Group();scene.add(particleGroup);
+function burst(n=90){
+ for(let i=0;i<n;i++){
+  const p=new THREE.Mesh(new THREE.SphereGeometry(.035+Math.random()*.045,8,8),i%3?gold:cyan);
+  p.position.set((Math.random()-.5)*2,.8+Math.random()*1.4,(Math.random()-.5)*2);
+  p.userData={v:new THREE.Vector3((Math.random()-.5)*.08,.04+Math.random()*.12,(Math.random()-.5)*.08),life:1+Math.random()*2};
+  particleGroup.add(p);particles.push(p);
+ }
+}
+burst(110);
+
+let turbo=1, syrupVisible=true, last=performance.now();
+function animate(now){
+ requestAnimationFrame(animate);
+ const dt=Math.min((now-last)/16.67,2);last=now;
+ root.rotation.y+=.0018* turbo*dt;
+ waffle.rotation.y=Math.sin(now*.0007)*.035;
+ core.rotation.x+=.018*dt;core.rotation.y+=.025*dt;
+ core.scale.setScalar(1+Math.sin(now*.006)*.08*turbo);
+ rings.forEach((r,i)=>{r.rotation.z+=(.005+i*.002)*turbo*dt;r.scale.setScalar(1+Math.sin(now*.002+i)*.04)});
+ stars.rotation.y+=.00015*dt;
+ particles.forEach((p,i)=>{
+  p.position.addScaledVector(p.userData.v,dt*turbo);
+  p.userData.v.y-=.002*dt;
+  p.userData.life-=.012*dt;
+  if(p.userData.life<=0){p.userData.life=1+Math.random()*2;p.position.set((Math.random()-.5)*2,.9+Math.random(),(Math.random()-.5)*2);p.userData.v.y=.05+Math.random()*.1}
+  p.material.opacity=Math.min(1,p.userData.life);
+ });
+ controls.update();renderer.render(scene,camera);
+}
+animate(performance.now());
+
+document.getElementById('turbo').onclick=()=>{
+ turbo=turbo===1?3:1;
+ document.getElementById('turbo').classList.toggle('active',turbo>1);
+ key.intensity=turbo>1?8:4;coreLight.intensity=turbo>1?9:4;burst(turbo>1?180:60);
+ document.getElementById('peace').textContent=turbo>1?'∞ %':'99.9%';
+};
+document.getElementById('syrup').onclick=()=>{
+ syrupVisible=!syrupVisible;syrup.visible=syrupVisible;
+ document.getElementById('syrup').classList.toggle('active',syrupVisible);
+};
+document.getElementById('orbit').onclick=()=>{
+ controls.autoRotate=!controls.autoRotate;
+ document.getElementById('orbit').classList.toggle('active',controls.autoRotate);
+};
+window.addEventListener('resize',()=>{
+ camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();
+ renderer.setSize(innerWidth,innerHeight);
+});
+renderer.domElement.addEventListener('pointerdown',e=>{
+ if(e.target!==renderer.domElement)return;
+ const ray=new THREE.Raycaster(), mouse=new THREE.Vector2((e.clientX/innerWidth)*2-1,-(e.clientY/innerHeight)*2+1);
+ ray.setFromCamera(mouse,camera);
+ if(ray.intersectObjects(waffle.children,true).length){burst(100);turbo=2;setTimeout(()=>turbo=1,700)}
+});
+</script>
+</body>
+</html>
